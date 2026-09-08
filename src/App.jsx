@@ -7,6 +7,8 @@ import Login from "./pages/auth/Login"
 import Signup from "./pages/auth/Signup"
 import PrivatePageExample from "./pages/PrivatePageExample";
 
+import OnlyPrivate from "./components/OnlyPrivate";
+
 // components
 import Navbar from "./components/Navbar"
 
@@ -23,7 +25,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/private-page-example" element={<PrivatePageExample />} />
+        <Route path="/private-page-example" element={ <OnlyPrivate><PrivatePageExample /></OnlyPrivate> } />
 
         {/* error FE routes here... */}
 

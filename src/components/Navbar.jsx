@@ -29,7 +29,8 @@ function Navbar() {
       { !isLoggedIn && <Link to="/signup">Signup</Link> } 
       { !isLoggedIn && <Link to="/login">Login</Link> }
 
-      { isLoggedIn && <Link to="/private-page-example">Private Page Example</Link> }
+      { isLoggedIn && <Link to="/private/activities">ACTIVITY PAGE</Link> }
+        { isLoggedIn && <Link to="/private/calories">CALORIE PAGE</Link> }
       { isLoggedIn && <button onClick={handleLogout}>Logout</button> }
       
     </nav>

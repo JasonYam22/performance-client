@@ -41,7 +41,7 @@ function Login() {
 
       setLoggedUserRole(response.data.payload.role) // only for roles
 
-      navigate("/private-page-example")
+      navigate("/")
 
     } catch (error) {
       console.log(error)

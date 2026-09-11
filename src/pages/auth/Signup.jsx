@@ -30,7 +30,7 @@ function Signup() {
       // ... contact backend to register the user
       // await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/auth/signup`, body)
       await service.post("/auth/signup", body)
-      console.log("all good, user created, maybe")
+      console.log("user created")
 
       navigate("/login")
 
@@ -39,7 +39,7 @@ function Signup() {
       if (error.response.status === 400) {
         setErrorMessage(error.response.data.errorMessage)
       } else {
-        // we should send the user to an error page
+      navigate("/error")
       }
     }
 

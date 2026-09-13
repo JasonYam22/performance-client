@@ -10,97 +10,101 @@ function ActivityPage() {
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [caloriesBurned, setCaloriesBurned] = useState("");
-  const [date, setDate] = useState("")
-const [editingId, setEditingId] = useState(null)
+  const [date, setDate] = useState("");
+  const [editingId, setEditingId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDurationChange = (e) => setDuration(e.target.value);
   const handleDistanceChange = (e) => setDistance(e.target.value);
   const handlecaloriesBurnedChange = (e) => setCaloriesBurned(e.target.value);
-    const handleDateChange = (e) => setDate(e.target.value);
-  
+  const handleDateChange = (e) => setDate(e.target.value);
 
-  const handleUpdateButton = async (e) => {
+  const resetForm = () => {
+    setEditingId(null);
+    setTitle("");
+    setDistance("");
+    setDuration("");
+    setCaloriesBurned("");
+    setDate("");
+    setErrorMessage(null);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (distance < 0 || duration < 0 || caloriesBurned < 0) {
+      alert("Please fill infields with valid numbers");
+      return;
+    }
+    if (!title) {
+      alert("Please add a title to the activity");
+      return;
+    }
 
     const body = {
       title,
+      distance,
       duration,
-      distance,
       caloriesBurned,
-      date
+      date,
     };
-    const response = await service.put(`/activities/${editingId}`, body)
-setActivities(
-  activities.map((activity) => {
-    if (activity._id === editingId) {
-      return response.data
-    } else {
-      return activity
-    }
-  }),
-)
-setEditingId(null);
-setTitle("")
-setDistance("")
-setDuration("")
-setCaloriesBurned("")
-setDate("")
-}
+    try {
+      if (editingId) {
+        const response = await service.put(`/activities/${editingId}`, body);
 
-const handleActivity = async (e) => {
-  e.preventDefault()
-  if (distance < 0 || duration < 0 || caloriesBurned < 0){
-    alert("Please fill in all fields with valid numbers") 
-return 
-    }
-    if (!title) {
-      alert("Please add a title to the activity")
-      return
-    }
-
-
- const body = {
-      title,
-      distance,
-         duration,
-      caloriesBurned,
-      date
-    };
-    try{
-      const response = await service.post("/activities", body)
-      setActivities([...activities, response.data])
-      setTitle("")
-      setDistance("")
-      setDuration("")
-setCaloriesBurned("")
-setDate("")
-    } catch (error) {
-      console.log(error)
-      if (error.response.status === 400) {
-        setErrorMessage(error.response.data.errorMessage)
+        setActivities(
+          activities.map((activity) => {
+            if (activity._id === editingId) {
+              return response.data;
+            } else {
+              return activity;
+            }
+          }),
+        );
       } else {
-        navigate("/error")
+        const response = await service.post("/activities", body);
+        setActivities([...activities, response.data]);
+      }
+      resetForm();
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 400) {
+        setErrorMessage("Could not add activity");
+      } else {
+        navigate("/error");
       }
     }
-  }
-  const handleDeleteButton = async (activityId) => {
-    await service.delete(`/activities/${activityId}`);
-    setActivities(
-      activities.filter((activity) => {
-        return activity._id !== activityId;
-      }),
-    );
   };
 
   const handleEditButton = (activity) => {
-   setTitle(activity.title)
-   setDistance(activity.distance)
-setDuration(activity.duration)
-   setCaloriesBurned(activity.caloriesBurned)
-   setEditingId(activity._id)
-  }
+    setTitle(activity.title);
+    setDistance(activity.distance);
+    setDuration(activity.duration);
+    setCaloriesBurned(activity.caloriesBurned);
+    if (activity.date) {
+      setDate(activity.date.slice(0, 10));
+    } else {
+      setDate("");
+    }
+    setEditingId(activity._id);
+  };
+  const handleDeleteButton = async (activityId) => {
+    try {
+      await service.delete(`/activities/${activityId}`);
+      setActivities(
+        activities.filter((activity) => {
+          if (activity._id !== activityId) {
+            return true;
+          } else {
+            return false;
+          }
+        }),
+      );
+    } catch (error) {
+      console.log(error);
+      navigate("/error");
+    }
+  };
 
   useEffect(() => {
     service
@@ -121,7 +125,7 @@ setDuration(activity.duration)
       </Link>
       <h1>THIS IS THE ACTIVITY PAGE</h1>
 
-      <form onSubmit={handleActivity}>
+      <form onSubmit={handleSubmit}>
         <label>Title</label>
         <input
           type="text"
@@ -161,7 +165,7 @@ setDuration(activity.duration)
         />
         <br />
 
-            <label>Date:</label>
+        <label>Date:</label>
         <input
           type="date"
           name="date"
@@ -169,11 +173,7 @@ setDuration(activity.duration)
           value={date}
           onChange={handleDateChange}
         />
-{ editingId ? (
-        <button type="button" onClick={handleUpdateButton}>Update</button>
-) : (
-  <button type="submit">Save</button>
-)}
+        <button type="submit">{editingId ? "Update" : "Save"}</button>
         {errorMessage && <p>{errorMessage}</p>}
       </form>
 
@@ -181,9 +181,14 @@ setDuration(activity.duration)
         <div key={activity._id}>
           <h3>{activity.title}</h3>
           <p>Distance: {activity.distance} km</p>
-            <p>Duration: {activity.duration} mins</p>
+          <p>Duration: {activity.duration} mins</p>
           <p>Calories burned: {activity.caloriesBurned} ckal</p>
-          <p>Date: {activity.date ? activity.date.slice(0, 10).split("-").reverse().join(".") : ""}</p>
+          <p>
+            Date:{" "}
+            {activity.date
+              ? activity.date.slice(0, 10).split("-").reverse().join(".")
+              : ""}
+          </p>
           <button onClick={() => handleDeleteButton(activity._id)}>
             Delete activity
           </button>

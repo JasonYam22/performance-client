@@ -20,20 +20,46 @@ function ActivityPage() {
   const handlecaloriesBurnedChange = (e) => setCaloriesBurned(e.target.value);
   const handleDateChange = (e) => setDate(e.target.value);
 
-  const resetForm = () => {
+  const handleUpdateButton = async (e) => {
+    e.preventDefault();
+
+    const body = {
+      title,
+      duration,
+      distance,
+      caloriesBurned,
+      date,
+    };
+    const response = await service.put(`/activities/${editingId}`, body);
+    setActivities(
+      activities.map((activity) => {
+        if (activity._id === editingId) {
+          return response.data;
+        } else {
+          return activity;
+        }
+      }),
+    );
     setEditingId(null);
     setTitle("");
     setDistance("");
     setDuration("");
     setCaloriesBurned("");
     setDate("");
-    setErrorMessage(null);
+  };
+
+  const handleEditButton = (activity) => {
+    setTitle(activity.title);
+    setDistance(activity.distance);
+    setDuration(activity.duration);
+    setCaloriesBurned(activity.caloriesBurned);
+    setEditingId(activity._id);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (distance < 0 || duration < 0 || caloriesBurned < 0) {
-      alert("Please fill infields with valid numbers");
+      alert("Please fill in all fields with valid numbers");
       return;
     }
     if (!title) {
@@ -49,62 +75,32 @@ function ActivityPage() {
       date,
     };
     try {
-      if (editingId) {
-        const response = await service.put(`/activities/${editingId}`, body);
-
-        setActivities(
-          activities.map((activity) => {
-            if (activity._id === editingId) {
-              return response.data;
-            } else {
-              return activity;
-            }
-          }),
-        );
-      } else {
-        const response = await service.post("/activities", body);
-        setActivities([...activities, response.data]);
-      }
-      resetForm();
+      const response = await service.post("/activities", body);
+      setActivities([...activities, response.data]);
+      setTitle("");
+      setDistance("");
+      setDuration("");
+      setCaloriesBurned("");
+      setDate("");
     } catch (error) {
       console.log(error);
       if (error.response.status === 400) {
-        setErrorMessage("Could not add activity");
+        setErrorMessage(error.response.data.errorMessage);
       } else {
         navigate("/error");
       }
     }
   };
-
-  const handleEditButton = (activity) => {
-    setTitle(activity.title);
-    setDistance(activity.distance);
-    setDuration(activity.duration);
-    setCaloriesBurned(activity.caloriesBurned);
-    if (activity.date) {
-      setDate(activity.date.slice(0, 10));
-    } else {
-      setDate("");
-    }
-    setEditingId(activity._id);
-  };
   const handleDeleteButton = async (activityId) => {
-    try {
-      await service.delete(`/activities/${activityId}`);
-      setActivities(
-        activities.filter((activity) => {
-          if (activity._id !== activityId) {
-            return true;
-          } else {
-            return false;
-          }
-        }),
-      );
-    } catch (error) {
-      console.log(error);
-      navigate("/error");
-    }
+    await service.delete(`/activities/${activityId}`);
+    setActivities(
+      activities.filter((activity) => {
+        return activity._id !== activityId;
+      }),
+    );
   };
+
+  
 
   useEffect(() => {
     service
@@ -120,9 +116,6 @@ function ActivityPage() {
 
   return (
     <div>
-      <Link to="/">
-        <h1>Back to HOMEPAGE</h1>
-      </Link>
       <h1>THIS IS THE ACTIVITY PAGE</h1>
 
       <form onSubmit={handleSubmit}>
@@ -173,8 +166,15 @@ function ActivityPage() {
           value={date}
           onChange={handleDateChange}
         />
-        <button type="submit">{editingId ? "Update" : "Save"}</button>
+        {editingId ? (
+          <button type="button" onClick={handleUpdateButton}>
+            Update
+          </button>
+        ) : (
+          <button type="submit">Save</button>
+        )}
         {errorMessage && <p>{errorMessage}</p>}
+        
       </form>
 
       {activities.map((activity) => (

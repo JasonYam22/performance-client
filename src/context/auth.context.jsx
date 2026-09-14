@@ -1,4 +1,4 @@
-import axios from "axios";
+/* import axios from "axios"; */
 import { createContext, useEffect, useState } from "react";
 import service from "../services/index.services";
 
@@ -28,7 +28,6 @@ function AuthWrapper( { children } ) {
       //   }
       // })
       const response = await service.get("/auth/verify")
-      console.log(response)
 
       // the token is valid
       setIsLoggedIn(true)

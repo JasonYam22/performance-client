@@ -11,13 +11,13 @@ function ActivityPage() {
   const [duration, setDuration] = useState("");
   const [caloriesBurned, setCaloriesBurned] = useState("");
   const [date, setDate] = useState("");
-  const [editingId, setEditingId] = useState(null);
+  const [activityId, setActivityId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDurationChange = (e) => setDuration(e.target.value);
   const handleDistanceChange = (e) => setDistance(e.target.value);
-  const handlecaloriesBurnedChange = (e) => setCaloriesBurned(e.target.value);
+  const handleCaloriesBurnedChange = (e) => setCaloriesBurned(e.target.value);
   const handleDateChange = (e) => setDate(e.target.value);
 
   const handleUpdateButton = async (e) => {
@@ -30,17 +30,17 @@ function ActivityPage() {
       caloriesBurned,
       date,
     };
-    const response = await service.put(`/activities/${editingId}`, body);
+    const response = await service.put(`/activities/${activityId}`, body);
     setActivities(
       activities.map((activity) => {
-        if (activity._id === editingId) {
+        if (activity._id === activityId) {
           return response.data;
         } else {
           return activity;
         }
       }),
     );
-    setEditingId(null);
+    setActivityId(null);
     setTitle("");
     setDistance("");
     setDuration("");
@@ -53,7 +53,7 @@ function ActivityPage() {
     setDistance(activity.distance);
     setDuration(activity.duration);
     setCaloriesBurned(activity.caloriesBurned);
-    setEditingId(activity._id);
+    setActivityId(activity._id);
   };
 
   const handleSubmit = async (e) => {
@@ -84,18 +84,18 @@ function ActivityPage() {
       setDate("");
     } catch (error) {
       console.log(error);
-      if (error.response.status === 400) {
+      if (error.status && error.response.status === 400) {
         setErrorMessage(error.response.data.errorMessage);
       } else {
         navigate("/error");
       }
     }
   };
-  const handleDeleteButton = async (activityId) => {
-    await service.delete(`/activities/${activityId}`);
+  const handleDeleteButton = async (Id) => {
+    await service.delete(`/activities/${Id}`);
     setActivities(
       activities.filter((activity) => {
-        return activity._id !== activityId;
+        return activity._id !== Id;
       }),
     );
   };
@@ -154,7 +154,7 @@ function ActivityPage() {
           type="number"
           name="caloriesBurned"
           value={caloriesBurned}
-          onChange={handlecaloriesBurnedChange}
+          onChange={handleCaloriesBurnedChange}
         />
         <br />
 
@@ -166,7 +166,7 @@ function ActivityPage() {
           value={date}
           onChange={handleDateChange}
         />
-        {editingId ? (
+        {activityId ? (
           <button type="button" onClick={handleUpdateButton}>
             Update
           </button>

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import service from "../../services/index.services";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
+import { Doughnut } from 'react-chartjs-2';
 
+ChartJS.register(ArcElement,Tooltip,Legend)
 
 function CaloriePage() {
 
@@ -10,15 +13,18 @@ function CaloriePage() {
   const [protein, setProtein] = useState("")
   const [fat, setFat] = useState("")
   const [carbs, setCarbs] = useState("")
-  const [calorieList, setCalorieList] = useState([])
-const [calories, setCalories] = useState("")
+const [caloriesConsumed, setCaloriesConsumed] = useState("")
 const [mealName, setMealName] = useState("")
 const [mealId, setMealId] = useState(null)
 const [errorMessage, setErrorMessage] = useState(null)
 const [date, setDate] = useState("")
+/* const [loading, isLoading] = useState(true) */
+
+const [activityList, setActivityList] = useState ([])
+ const [calorieList, setCalorieList] = useState([])
 
 const handleMealNameChange = (e) => setMealName(e.target.value)
-const handleCaloriesChange = (e) => setCalories(e.target.value)
+const handleCaloriesConsumedChange = (e) => setCaloriesConsumed(e.target.value)
 const handleDateChange = (e) => setDate(e.target.value)
 const handleProteinChange = (e) => setProtein(e.target.value)
 const handleCarbsChange = (e) => setCarbs(e.target.value)
@@ -27,7 +33,7 @@ const handleFatChange = (e) => setFat(e.target.value)
 
 const resetForm = () => {
   setMealName("")
-  setCalories("")
+  setCaloriesConsumed("")
   setCarbs("")
   setDate("")
   setFat("")
@@ -54,14 +60,14 @@ const handleSubmit = async (e) => {
 
   const body = {
   mealName,
-  calories,
+  caloriesConsumed,
   protein,
   fat,
   carbs,
 date
 }
 
-  if (calories < 0 || protein < 0 || fat < 0 || carbs < 0) {
+  if (caloriesConsumed < 0 || protein < 0 || fat < 0 || carbs < 0) {
     alert ("Please fill fields with valid numbers")
     return
   }
@@ -102,25 +108,75 @@ resetForm()
     setProtein(calories.protein);
     setCarbs(calories.carbs)
 setFat(calories.fat)
-setCalories(calories.calories);
+setCaloriesConsumed(calories.caloriesConsumed);
     setMealId(calories._id)
-    if (meal.date) {
-      setDate(meal.date.slice(0,10))
+    if (calories.date) {
+      setDate(calories.date.slice(0,10))
     } else {
-      setData("")
+      setDate("")
     }
-    setMealId(meal._id)
   };
 
  const handleDeleteButton = async (mealId) => {
-    await service.delete(`/calories/${mealId}`);
-    setCalories(
-      calories.filter((meal) => {
+    await service.delete(`/calories/${mealId}`)
+    setCalorieList(
+      calorieList.filter((meal) => {
         return meal._id !== mealId;
       }),
     );
-  };
+}  
 
+useEffect(() => {
+const getData = async () => {
+    try {
+        const caloriesResponse = await service.get("/calories")
+          const activitiesResponse = await service.get("/activities")
+
+          setCalorieList(caloriesResponse.data)
+          setActivityList(activitiesResponse.data)
+    } catch (error) {
+        console.log(error)
+        if (error.status && error.response.status === 400) {
+        setErrorMessage(error.response.data.errorMessage);
+      } else {
+        navigate("/error");
+      }
+    }
+}
+getData()
+},[])
+
+const totalCaloriesConsumed = calorieList.reduce((acc, meal) => {
+return acc + (Number(meal.caloriesConsumed) || 0)
+},0)
+
+const totalCaloriesBurned = activityList.reduce((acc, activity) => {
+return acc + (Number(activity.caloriesBurned) || 0)
+},0)
+
+const totalProtein = calorieList.reduce((acc, meal) => {
+return acc + (Number(meal.protein) || 0)
+},0)
+
+const totalCarbs = calorieList.reduce((acc, meal) => {
+return acc + (Number(meal.carbs) || 0)
+},0)
+
+const totalFat = calorieList.reduce((acc, meal) => {
+return acc + (Number(meal.fat) || 0)
+},0)
+
+const totalCaloriesLeft = totalCaloriesConsumed - totalCaloriesBurned
+;
+
+const macroChartData = {
+  labels: ["Protein(g)", "Carbs(g)", "Fat(g)"],
+  datasets: [{
+    label: "macros",
+    data: [totalProtein, totalCarbs, totalFat],
+    backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384']
+  }]
+}
   return (
     <div>
       <h1>CALORIE PAGE</h1>
@@ -138,9 +194,9 @@ onChange={handleMealNameChange}
   <label>Calories</label>
   <input 
 type="number"
-name="calories"
-value={calories}
-onChange={handleCaloriesChange}
+name="caloriesConsumed"
+value={caloriesConsumed}
+onChange={handleCaloriesConsumedChange}
 />
 
 <br />
@@ -189,10 +245,24 @@ onChange={handleFatChange}
 
 </form>
 
+<div>
+  <h3>CALORIE TOTAL</h3>
+  <p>Consumed: {totalCaloriesConsumed}</p>
+   <p>Burned: {totalCaloriesBurned}</p>
+    <p> Calories left: {totalCaloriesLeft}</p>
+</div>
+
+<div style={{ width: '200px', height: '200px', margin: '0 auto' }}>
+  <Doughnut 
+    data={macroChartData} 
+    options={{ responsive: true, maintainAspectRatio: false }} 
+  />
+</div>
+
   {calorieList.map((calorie) => (
         <div key={calorie._id}>
           <h3>{calorie.mealName}</h3>
-          <p>calories: {calorie.calories}g</p>
+          <p>calories: {calorie.caloriesConsumed}g</p>
           <p>Protein: {calorie.protein}p</p>
           <p>Carbs:{calorie.carbs}c</p>
           <p>Fat: {calorie.fat}f</p>

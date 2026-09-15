@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import service from "../../services/index.services";
 import { useNavigate, Link } from "react-router-dom";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
+import { Bar } from "react-chartjs-2"
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend )
 
 function ActivityPage() {
   const navigate = useNavigate();
 
+  const [weekFilter, setWeekFilter] = useState(0)
   const [activities, setActivities] = useState([]);
   const [title, setTitle] = useState("");
   const [distance, setDistance] = useState("");
@@ -100,7 +105,49 @@ function ActivityPage() {
     );
   };
 
-  
+  // get the current week (start)
+  const now = new Date()
+  const dayOfWeek = now.getDay()
+  const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek -1
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - daysSinceMonday - weekFilter * 7)
+  const mondayString = monday.toISOString().slice(0, 10)
+
+// get the current week (end)
+const sunday = new Date(monday)
+sunday.setDate(monday.getDate() + 6)
+const sundayString = sunday.toISOString().slice(0, 10)
+
+const currentWeekActivities = activities.filter((activity) => {
+  return activity.date && activity.date.slice(0,10) >= mondayString
+  &&
+  activity.date.slice(0,10) <= sundayString
+})
+
+
+
+const activityLabels = currentWeekActivities.map((activity) => {
+  return activity.date.slice(0, 10)
+})
+
+const distances = currentWeekActivities.map((activity) => {
+  return activity.distance
+})
+
+  const totalCaloriesBurnedThisWeek = currentWeekActivities.reduce((acc, activity) => {
+  return acc + (Number(activity.caloriesBurned) || 0)
+}, 0)
+
+  const activityChartData = {
+    labels: activityLabels,
+    datasets: [
+      {
+        label: "Distance (km)",
+        data: distances,
+        backgroundColor: "#36A2EB",
+      },
+    ],
+  };
 
   useEffect(() => {
     service
@@ -162,7 +209,7 @@ function ActivityPage() {
         <input
           type="date"
           name="date"
-          placeholder="YYYY/MM/DD"
+          placeholder="Date"
           value={date}
           onChange={handleDateChange}
         />
@@ -176,15 +223,22 @@ function ActivityPage() {
         {errorMessage && <p>{errorMessage}</p>}
         
       </form>
-
+  <button type="button" onClick={() => setWeekFilter(weekFilter + 1)}>Previous Week</button> 
+ <button type="button" onClick={() => setWeekFilter(weekFilter - 1)}>Next Week</button> 
+<Bar data={activityChartData} />
+ <div>
+        <h3>Calories Burned This Week</h3>
+        <p>{totalCaloriesBurnedThisWeek} kcal</p>
+      </div>
       {activities.map((activity) => (
-        <div key={activity._id}>
+        <div key={activity._id} className="flex row">
           <h3>{activity.title}</h3>
           <p>Distance: {activity.distance} km</p>
           <p>Duration: {activity.duration} mins</p>
-          <p>Calories burned: {activity.caloriesBurned} ckal</p>
+          <p>Calories burned: {activity.caloriesBurned} ckal </p>
           <p>
-            Date:{" "}
+            <br />
+             Date:{" "}
             {activity.date
               ? activity.date.slice(0, 10).split("-").reverse().join(".")
               : ""}

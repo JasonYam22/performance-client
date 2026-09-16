@@ -38,6 +38,7 @@ function getDailyChartData(activities) {
           label: "Distance (km)",
           data: [totalDistance],
           backgroundColor: "#36A2EB",
+          maxBarThickness: 70,
         },
       ],
     },
@@ -102,12 +103,42 @@ function getWeeklyChartData(activities, weekFilter) {
         label: "Distance (km)",
         data: distances,
         backgroundColor: "#36A2EB",
+        maxBarThickness: 40,
       },
     ],
   };
 
   return { activityChartData, totalCaloriesBurnedThisWeek };
 }
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      labels: {
+        color: "#FFFFFF" // Makes legend text white if enabled
+      }
+    }
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: "#FFFFFF" // Makes X-axis labels (days/dates) white
+      },
+      grid: {
+        color: "rgba(255, 255, 255, 0.1)" // Optional: lighter grid lines for dark mode
+      }
+    },
+    y: {
+      ticks: {
+        color: "#FFFFFF" // Makes Y-axis numbers white
+      },
+      grid: {
+        color: "rgba(255, 255, 255, 0.1)"
+      }
+    }
+  }
+};
 
 function ActivityPage() {
   const navigate = useNavigate();
@@ -234,91 +265,261 @@ function ActivityPage() {
       });
   }, []);
 
-return (
-  <div className="p-6 space-y-6">
-    <div className="flex items-center gap-4">
-      <button className="px-3 py-1 text-sm" type="button" onClick={() => navigate(-1)}>Back</button>
-      <h1 className="text-2xl font-bold">ACTIVITY</h1>
-    </div>
+  return (
+    <div className="bg-gray-900 text-[#1E293B] min-h-screen">
+      <div className="max-w-5xl mx-auto p-6 space-y-8">
+        <div className="flex items-center justify-between border-b border-[#FFFFFF]/30 pb-4">
+          <button
+            className="text-2xl font-bold tracking-wider text-[#2563EB] hover:text-[#1E293B] transition-colors"
+            type="button"
+            onClick={() => navigate(-1)}>Back</button>
+          <h1 className="text-2xl font-bold tracking-wider">ACTIVITY</h1>
+        </div>
 
-    <div>
-      <div className="flex gap-4">
-        <h4 className="text-sm font-semibold">Total Distance</h4>
-        <p>{totalDistanceFilter} km</p>
+        {/* Metric Summary Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border border-[#FFFFFF]/30 p-4 rounded space-y-1">
+            <h4 className="text-xs uppercase tracking-wide text-[#FFFFFF]">
+              Total Distance
+            </h4>
+            <p className="text-xl font-semibold text-[#2563EB]">
+              {totalDistanceFilter} km
+            </p>
+          </div>
+          <div className="border border-[#FFFFFF]/30 p-4 rounded space-y-1">
+            <h4 className="text-xs uppercase tracking-wide text-[#FFFFFF]">
+              Calories Burned
+            </h4>
+            <p className="text-xl font-semibold text-[#F59E0B]">
+              {totalCaloriesBurnedThisWeek} kcal
+            </p>
+          </div>
+        </div>
+
+        {/* Chart Section Box */}
+        <div className="border border-[#FFFFFF]/30 p-6 rounded space-y-4">
+          <div className="flex justify-between items-start">
+            <div className="text-sm font-semibold uppercase tracking-wider text-[#1E293B]">
+              Distance
+            </div>
+            <select
+              className="border border-[#FFFFFF]/40 px-2 py-1 text-sm rounded bg-[#FFFFFF] text-[#1E293B]"
+              value={viewMode}
+              onChange={handleViewModeChange}
+            >
+              <option value="weekly">Weekly</option>
+              <option value="daily">Daily</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex-1 min-w-0 border border-[#FFFFFF]/30 rounded p-4 h-80 md:h-96 lg:h-[30rem]">
+              <Bar data={activityChartData} options={chartOptions} />
+            </div>
+
+            <div className="w-full lg:w-52 shrink-0 border border-[#FFFFFF]/30 rounded p-4 space-y-2 self-start">
+              <h4 className="text-xs uppercase tracking-wide text-[#FFFFFF]">
+                Legend
+              </h4>
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-sm bg-[#2563EB]" />
+                <span className="text-xs">Distance (km)</span>
+              </div>
+            </div>
+          </div>
+
+          {viewMode === "weekly" && (
+            <div className="flex justify-center space-x-4">
+              <button
+                type="button"
+                className="border border-[#FFFFFF]/40 px-3 py-1 text-xs rounded text-[#2563EB] hover:bg-[#2563EB]/10 transition-colors"
+                onClick={() => setWeekFilter(weekFilter + 1)}
+              >
+                Previous Week
+              </button>
+              <button
+                type="button"
+                className="border border-[#FFFFFF]/40 px-3 py-1 text-xs rounded text-[#2563EB] hover:bg-[#2563EB]/10 transition-colors"
+                onClick={() => setWeekFilter(weekFilter - 1)}
+              >
+                Next Week
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Form Section Container */}
+        <div className="border border-[#FFFFFF]/30 p-6 rounded space-y-4">
+          <div className="text-base font-bold">
+            {activityId ? "Edit Activity" : "Log Activity"}
+          </div>
+
+          <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="block text-xs uppercase tracking-wide mb-1 text-[#FFFFFF]">
+                  Title
+                </label>
+                <input
+                  className="border border-[#FFFFFF]/40 w-full p-2 text-sm rounded bg-[#FFFFFF] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB]"
+                  type="text"
+                  name="title"
+                  value={title}
+                  onChange={handleTitleChange}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-xs uppercase tracking-wide mb-1 text-[#FFFFFF]">
+                  Date:
+                </label>
+                <input
+                  className="border border-[#FFFFFF]/40 w-full p-2 text-sm rounded bg-[#FFFFFF] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB]"
+                  type="date"
+                  name="date"
+                  placeholder="Date"
+                  value={date}
+                  onChange={handleDateChange}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-xs uppercase tracking-wide mb-1 text-[#FFFFFF]">
+                  Distance:
+                </label>
+                <input
+                  className="border border-[#FFFFFF]/40 w-full p-2 text-sm rounded bg-[#FFFFFF] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB]"
+                  type="number"
+                  name="distance"
+                  value={distance}
+                  onChange={handleDistanceChange}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-xs uppercase tracking-wide mb-1 text-[#FFFFFF]">
+                  Duration
+                </label>
+                <input
+                  className="border border-[#FFFFFF]/40 w-full p-2 text-sm rounded bg-[#FFFFFF] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/40 focus:border-[#2563EB]"
+                  type="number"
+                  name="duration"
+                  value={duration}
+                  onChange={handleDurationChange}
+                />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <label className="block text-xs uppercase tracking-wide mb-1 text-[#FFFFFF]">
+                  Burned Calories
+                </label>
+                <input
+                  className="border border-[#FFFFFF]/40 w-full p-2 text-sm rounded bg-[#FFFFFF] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40 focus:border-[#F59E0B]"
+                  type="number"
+                  name="caloriesBurned"
+                  value={caloriesBurned}
+                  onChange={handleCaloriesBurnedChange}
+                />
+              </div>
+            </div>
+
+            {errorMessage && (
+              <p className="text-sm text-[#F59E0B]">{errorMessage}</p>
+            )}
+
+            <div className="flex space-x-4 pt-2">
+              {activityId ? (
+                <button
+                  className="bg-[#2563EB] text-white px-4 py-2 text-sm font-medium rounded hover:bg-[#1D4ED8] transition-colors"
+                  type="button"
+                  onClick={handleUpdateButton}
+                >
+                  Update
+                </button>
+              ) : (
+                <button
+                  className="bg-[#2563EB] text-white px-4 py-2 text-sm font-medium rounded hover:bg-[#1D4ED8] transition-colors"
+                  type="submit"
+                >
+                  Save
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Running History Table Container */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold tracking-wide">Running History</h2>
+
+          <div className="overflow-x-auto border border-[#FFFFFF]/30 rounded">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#FFFFFF]/30 bg-[#1E293B]/5">
+                  <th className="p-3 text-xs uppercase tracking-wider border-r border-[#FFFFFF]/20 text-[#FFFFFF]">
+                    Date
+                  </th>
+                  <th className="p-3 text-xs uppercase tracking-wider border-r border-[#FFFFFF]/20 text-[#FFFFFF]">
+                    Title
+                  </th>
+                  <th className="p-3 text-xs uppercase tracking-wider border-r border-[#FFFFFF]/20 text-[#FFFFFF]">
+                    Distance
+                  </th>
+                  <th className="p-3 text-xs uppercase tracking-wider border-r border-[#FFFFFF]/20 text-[#FFFFFF]">
+                    Duration
+                  </th>
+                  <th className="p-3 text-xs uppercase tracking-wider border-r border-[#FFFFFF]/20 text-[#FFFFFF]">
+                    Calories
+                  </th>
+                  <th className="p-3 text-xs uppercase tracking-wider text-[#FFFFFF]"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {activities.map((activity) => (
+                  <tr
+                    className="border-b border-[#FFFFFF]/20 hover:bg-[#2563EB]/5 transition-colors"
+                    key={activity._id}
+                  >
+                    <td className="p-3 text-sm border-r border-[#FFFFFF]/20">
+                      {activity.date
+                        ? activity.date
+                            .slice(0, 10)
+                            .split("-")
+                            .reverse()
+                            .join(".")
+                        : ""}
+                    </td>
+                    <td className="p-3 text-sm border-r border-[#FFFFFF]/20">
+                      {activity.title}
+                    </td>
+                    <td className="p-3 text-sm border-r border-[#FFFFFF]/20 text-[#2563EB]">
+                      {activity.distance} km
+                    </td>
+                    <td className="p-3 text-sm border-r border-[#FFFFFF]/20">
+                      {activity.duration} mins
+                    </td>
+                    <td className="p-3 text-sm border-r border-[#FFFFFF]/20 text-[#F59E0B]">
+                      {activity.caloriesBurned} kcal
+                    </td>
+                    <td className="p-3 text-sm space-x-2">
+                      <button
+                        className="underline text-xs text-[#2563EB] hover:text-[#1E293B]"
+                        onClick={() => handleEditButton(activity)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="underline text-xs text-[#F59E0B] hover:text-[#B45309]"
+                        onClick={() => handleDeleteButton(activity._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div>
-        <h4>Calories Burned</h4>
-        <p>{totalCaloriesBurnedThisWeek} kcal</p>
-      </div>
     </div>
-
-    <select value={viewMode} onChange={handleViewModeChange}>
-      <option value="weekly">Weekly</option>
-      <option value="daily">Daily</option>
-    </select>
-
-    {viewMode === "weekly" && (
-      <div className="flex">
-        <button type="button" onClick={() => setWeekFilter(weekFilter + 1)}>Previous Week</button>
-        <button type="button" onClick={() => setWeekFilter(weekFilter - 1)}>Next Week</button>
-     </div>
-    )}
-
-    <Bar data={activityChartData} />
-
-    <form className="flex flex-col" onSubmit={handleSubmit}>
-      <label>Title</label>
-      <input type="text" name="title" value={title} onChange={handleTitleChange} />
-      <br />
-      <label>Distance:</label>
-      <input type="number" name="distance" value={distance} onChange={handleDistanceChange} />
-      <br />
-      <label>Duration</label>
-      <input type="number" name="duration" value={duration} onChange={handleDurationChange} />
-      <br />
-      <label>Burned Calories</label>
-      <input type="number" name="caloriesBurned" value={caloriesBurned} onChange={handleCaloriesBurnedChange} />
-      <br />
-      <label>Date:</label>
-      <input type="date" name="date" placeholder="Date" value={date} onChange={handleDateChange} />
-      {activityId ? (
-        <button type="button" onClick={handleUpdateButton}>Update</button>
-      ) : (
-        <button type="submit">Save</button>
-      )}
-      {errorMessage && <p>{errorMessage}</p>}
-    </form>
-
-    <h2>Running History</h2>
-    <table className="w-full">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Title</th>
-          <th>Distance</th>
-          <th>Duration</th>
-          <th>Calories</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {activities.map((activity) => (
-          <tr key={activity._id}>
-            <td>{activity.date ? activity.date.slice(0, 10).split("-").reverse().join(".") : ""}</td>
-            <td>{activity.title}</td>
-            <td>{activity.distance} km</td>
-            <td>{activity.duration} mins</td>
-            <td>{activity.caloriesBurned} kcal</td>
-            <td>
-              <button onClick={() => handleEditButton(activity)}>Edit</button>
-              <button onClick={() => handleDeleteButton(activity._id)}>Delete</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)
+  );
 }
 
 export default ActivityPage;

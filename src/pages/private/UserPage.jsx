@@ -17,24 +17,24 @@ function UserPage() {
   const handleWeeklyWorkoutGoalChange = (e) =>
     setWeeklyWorkoutGoal(e.target.value);
 
-const handleSubmit = async (e) => {
-  e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const body = {
-    weight,
-    height,
-    goalWeight,
-    dailyCalorieGoal,
-    weeklyWorkoutGoal
-  }
+    const body = {
+      weight,
+      height,
+      goalWeight,
+      dailyCalorieGoal,
+      weeklyWorkoutGoal,
+    };
 
-  try {
-    const response = await service.put("users", body)
-    setUser(response.data)
-  } catch (error) {
-    console.log(error)
-  }
-}
+    try {
+      const response = await service.put("users", body);
+      setUser(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     service
@@ -68,62 +68,61 @@ const handleSubmit = async (e) => {
 
       <div>
         <h3>Weekly Workout Goal</h3>
-        <p>{user?.weeklyWorkoutGoal}kcal</p>
+        <p>{user?.weeklyWorkoutGoal} (times per week)</p>
       </div>
-<form onSubmit={handleSubmit}>
-  <label>Weight (kg)</label>
-  <input
-  type="number"
-  name="weight"
-  value={weight}
-  onChange={handleWeightChange}
-  />
+      <form onSubmit={handleSubmit}>
+        <label>Weight (kg)</label>
+        <input
+          type="number"
+          name="weight"
+          value={weight}
+          onChange={handleWeightChange}
+        />
 
-  <br />
+        <br />
 
- <label>Height (cm)</label>
-  <input
-  type="number"
-  name="height"
-  value={height}
-  onChange={handleHeightChange}
-  />
+        <label>Height (cm)</label>
+        <input
+          type="number"
+          name="height"
+          value={height}
+          onChange={handleHeightChange}
+        />
 
-  <br />
+        <br />
 
- <label>Goal Weight (kg)</label>
-  <input
-  type="number"
-  name="goalWeight"
-  value={goalWeight}
-  onChange={handleGoalWeightChange}
-  />
+        <label>Goal Weight (kg)</label>
+        <input
+          type="number"
+          name="goalWeight"
+          value={goalWeight}
+          onChange={handleGoalWeightChange}
+        />
 
-  <br />
+        <br />
 
- <label>Daily Calorie Goal</label>
-  <input
-  type="number"
-  name="dailyCalorieGoal"
-  value={dailyCalorieGoal}
-  onChange={handleDailyCalorieGoalChange}
-  />
+        <label>Daily Calorie Goal</label>
+        <input
+          type="number"
+          name="dailyCalorieGoal"
+          value={dailyCalorieGoal}
+          onChange={handleDailyCalorieGoalChange}
+        />
 
-  <br />
+        <br />
 
- <label>Weekly Workout Goal</label>
-  <input
-  type="number"
-  name="weeklyWorkoutGoal"
-  value={weeklyWorkoutGoal}
-  onChange={handleWeeklyWorkoutGoalChange}
-  />
+        <label>Weekly Workout Goal</label>
+        <input
+          type="number"
+          name="weeklyWorkoutGoal"
+          value={weeklyWorkoutGoal}
+          onChange={handleWeeklyWorkoutGoalChange}
+        />
 
-<br />
+        <br />
 
-<button type="submit">Save</button>
-
-</form>
+        <button type="submit">Save</button>
+      </form>
     </div>
   );
 }

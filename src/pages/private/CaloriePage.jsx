@@ -170,10 +170,6 @@ function CaloriePage() {
     return acc + (Number(activity.caloriesBurned) || 0);
   }, 0);
 
-  const totalCaloriesBurnedThisWeek = currentWeekActivities.reduce((acc, activity) => {
-  return acc + (Number(activity.caloriesBurned) || 0)
-}, 0)
-
   const totalCaloriesLeft =
     user?.dailyCalorieGoal - totalCaloriesConsumed + totalCaloriesBurned;
 

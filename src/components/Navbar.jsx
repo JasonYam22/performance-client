@@ -31,7 +31,9 @@ function Navbar() {
 
       { isLoggedIn && <Link to="/private/activities">ACTIVITY PAGE</Link> }
         { isLoggedIn && <Link to="/private/calories">CALORIE PAGE</Link> }
+        { isLoggedIn && <button onClick={() => navigate(-1)}>Back</button> }
       { isLoggedIn && <button onClick={handleLogout}>Logout</button> }
+      
       
     </nav>
   );

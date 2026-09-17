@@ -14,6 +14,12 @@ service.interceptors.request.use((config) => {
   return config
 })
 
+const foodApi = axios.create({
+  baseURL: import.meta.env.VITE_CALORIE_API_URL,
+});
+
+export { foodApi };
+
 // a bit more complex, creating individual functions to use in the components
 // function loginService(body) {
 //   return service.post("/auth/login", body)

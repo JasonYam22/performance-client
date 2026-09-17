@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/auth.context";
-import { Flame, ChevronLeft } from "lucide-react";
+import { Activity, Flame, ChevronLeft, User } from "lucide-react";
 
 function Navbar() {
 
@@ -23,65 +23,131 @@ function Navbar() {
 
   }
 
-  return (
-    <nav className="flex items-center justify-between px-6 md:px-12 py-3 text-[#F3F1ED] bg-[#1A1C21]/50 backdrop-blur-md">
-      <Link to="/" className="flex items-center gap-2">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-          <rect width="26" height="26" rx="7" fill="#FF5A36" />
-          <path
-            d="M5 17 L9 17 L11 9 L14 21 L16 13 L18 17 L21 17"
-            stroke="#15171B"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+ return (
+  <nav className="sticky top-0 z-50 border-b border-[#3A3D42]/70 bg-[#15171B]/90 backdrop-blur-xl">
+    <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
+
+      {/* Logo */}
+      <Link
+        to="/"
+        className="group flex items-center gap-3"
+      >
+        <div className="relative">
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 34 34"
             fill="none"
-          />
-        </svg>
-        <span className="font-black text-lg tracking-tight" style={{ fontFamily: "'Archivo Black', sans-serif" }}>
+            className="transition-transform duration-300 group-hover:scale-105"
+          >
+            <rect
+              width="34"
+              height="34"
+              rx="10"
+              fill="#FF5A36"
+            />
+            <path
+              d="M7 21.5H11L13.5 11L17 25L20 15.5L22.5 21.5H27"
+              stroke="#15171B"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+        </div>
+
+        <span
+          className="text-xl tracking-tight text-[#F3F1ED]"
+          style={{ fontFamily: "'Archivo Black', sans-serif" }}
+        >
           Performance
         </span>
       </Link>
 
-      <div className="flex items-center gap-6 text-sm font-semibold">
+      {/* Navigation */}
+      <div className="flex items-center gap-2 text-sm font-semibold">
+
+        {/* Back */}
         {isLoggedIn && (
-          <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-[#C4C9CE] hover:text-[#F3F1ED] transition-colors">
-            <ChevronLeft size={16} />
-            Back
+          <button
+            onClick={() => navigate(-1)}
+            className="mr-2 flex items-center gap-1.5 rounded-full px-3 py-2 text-[#A6ABB2] transition-all hover:bg-[#22252B] hover:text-[#F3F1ED]"
+          >
+            <ChevronLeft size={17} />
+            <span className="hidden sm:inline">Back</span>
           </button>
         )}
 
+        {/* Public Navigation */}
         {!isLoggedIn && (
           <>
-            <Link to="/login" className="text-[#C4C9CE] hover:text-[#F3F1ED] transition-colors">Login</Link>
+            <Link
+              to="/login"
+              className="rounded-full px-4 py-2.5 text-[#C4C9CE] transition-all hover:bg-[#22252B] hover:text-[#F3F1ED]"
+            >
+              Login
+            </Link>
+
             <Link
               to="/signup"
-              className="bg-[#FF5A36] text-[#15171B] font-black px-5 py-2 rounded-full hover:bg-[#ff7355] transition-colors"
+              className="rounded-full bg-[#FF5A36] px-5 py-2.5 font-bold text-[#15171B] shadow-[0_0_20px_rgba(255,90,54,0.15)] transition-all hover:bg-[#ff7355] hover:shadow-[0_0_25px_rgba(255,90,54,0.3)]"
             >
               Sign up
             </Link>
           </>
         )}
 
+        {/* Logged-in Navigation */}
         {isLoggedIn && (
           <>
-            <Link to="/private/activities" className="text-[#C4C9CE] hover:text-[#F3F1ED] transition-colors">
-              Activity
+            <Link
+              to="/private/user"
+              className="group flex items-center gap-2 rounded-full border border-transparent px-4 py-2.5 text-[#A6ABB2] transition-all hover:border-[#3A3D42] hover:bg-[#22252B] hover:text-[#F3F1ED]"
+            >
+              <User
+                size={17}
+                className="transition-colors group-hover:text-[#4FA8FF]"
+              />
+              <span className="hidden md:inline">Profile</span>
             </Link>
-            <Link to="/private/calories" className="flex items-center gap-1 text-[#C4C9CE] hover:text-[#F3F1ED] transition-colors">
-              <Flame size={16} />
-              Calories
+
+            <Link
+              to="/private/activities"
+              className="group flex items-center gap-2 rounded-full border border-transparent px-4 py-2.5 text-[#A6ABB2] transition-all hover:border-[#3A3D42] hover:bg-[#22252B] hover:text-[#F3F1ED]"
+            >
+              <Activity
+                size={17}
+                className="transition-colors group-hover:text-[#FF5A36]"
+              />
+              <span className="hidden md:inline">Activity</span>
             </Link>
+
+            <Link
+              to="/private/calories"
+              className="group flex items-center gap-2 rounded-full border border-transparent px-4 py-2.5 text-[#A6ABB2] transition-all hover:border-[#3A3D42] hover:bg-[#22252B] hover:text-[#F3F1ED]"
+            >
+              <Flame
+                size={17}
+                className="transition-colors group-hover:text-[#FF5A36]"
+              />
+              <span className="hidden md:inline">Calories</span>
+            </Link>
+
+            <div className="mx-2 h-7 w-px bg-[#3A3D42]" />
+
             <button
               onClick={handleLogout}
-              className="border-2 border-[#5A5F66] px-4 py-2 rounded-full hover:border-[#C4C9CE] transition-colors"
+              className="rounded-full border-2 border-[#3A3D42] px-4 py-2.5 text-[#A6ABB2] transition-all hover:border-[#FF5A36] hover:bg-[#FF5A36]/10 hover:text-[#F3F1ED]"
             >
               Logout
             </button>
           </>
         )}
       </div>
-    </nav>
-  );
+    </div>
+  </nav>
+);
 
 }
 

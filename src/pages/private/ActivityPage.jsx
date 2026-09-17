@@ -9,18 +9,20 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
+ import { Bar } from "react-chartjs-2"; 
 import {
-  Menu,
+  Activity,
   ArrowLeft,
-  Plus,
-  UserCog,
-  Pencil,
-  Trash2,
-  Route,
-  Flame,
   ChevronLeft,
   ChevronRight,
+  Flame,
+  Plus,
+  Pencil,
+  Route,
+  Target,
+  Trash2,
+  UserCog,
+  Scale,
 } from "lucide-react";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -155,6 +157,7 @@ const chartOptions = {
 function ActivityPage() {
   const navigate = useNavigate();
 
+  const [user, setUser] = useState(null)
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState("weekly");
   const [weekFilter, setWeekFilter] = useState(0);
@@ -285,188 +288,336 @@ function ActivityPage() {
       });
   }, []);
 
+  useEffect(() => {
+  service
+    .get("/users")
+    .then((response) => {
+      setUser(response.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}, []);
+
+const currentWeight = Number(user?.weight) || 0;
+const goalWeight = Number(user?.goalWeight) || 0;
+const weightDifference =
+  currentWeight && goalWeight
+    ? Math.abs(currentWeight - goalWeight)
+    : 0;
+
+
 return (
-  <div className="relative min-h-screen bg-[#14161B] text-[#F3F1ED] overflow-hidden">
-    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#FF5A36]/10 via-transparent to-[#4FA8FF]/10" />
-    <div className="pointer-events-none absolute -top-32 -left-32 h-[32rem] w-[32rem] rounded-full bg-[#FF5A36] opacity-30 blur-[150px]" />
-    <div className="pointer-events-none absolute top-1/4 -right-40 h-[34rem] w-[34rem] rounded-full bg-[#4FA8FF] opacity-25 blur-[150px]" />
-    <div className="pointer-events-none absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-[#33C97A] opacity-20 blur-[140px]" />
-    <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-[#FFC94F] opacity-[0.15] blur-[130px]" />
+  <div className="relative min-h-screen overflow-hidden bg-[#15171B] text-[#F3F1ED]">
+    {/* Ambient background */}
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute -left-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-[#FF5A36]/20 blur-[140px]" />
+      <div className="absolute -right-40 top-1/3 h-[34rem] w-[34rem] rounded-full bg-[#4FA8FF]/15 blur-[140px]" />
+      <div className="absolute bottom-[-12rem] left-1/3 h-[32rem] w-[32rem] rounded-full bg-[#33C97A]/10 blur-[140px]" />
+    </div>
 
-    <div className="relative max-w-5xl mx-auto px-6 py-16 space-y-14">
+    <div className="relative mx-auto max-w-7xl px-6 py-10 lg:px-10">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <button type="button" className="text-[#A6ABB2] hover:text-[#F3F1ED] transition-colors">
-          <Menu className="w-6 h-6" />
-        </button>
-        <div className="text-right">
-          <h1 className="text-4xl font-['Archivo_Black'] tracking-wide">ACTIVITY</h1>
-          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#A6ABB2]">Weekly training log</p>
+      <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#FF5A36]" />
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#A6ABB2]">
+              Performance
+            </span>
+          </div>
+
+          <h1 className="font-['Archivo_Black'] text-5xl tracking-tight md:text-6xl">
+            ACTIVITY
+          </h1>
+
+          <p className="mt-3 text-sm text-[#A6ABB2]">
+            Your training, tracked.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 rounded-full border-2 border-[#3A3D42] px-5 py-2.5 text-sm font-bold text-[#A6ABB2] transition-colors hover:border-[#F3F1ED] hover:text-[#F3F1ED]"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowForm((v) => !v)}
+            className="flex items-center gap-2 rounded-full bg-[#FF5A36] px-5 py-2.5 text-sm font-bold text-white shadow-[0_0_30px_-6px_#FF5A36] transition-all hover:bg-[#ff7355]"
+          >
+            <Plus className="h-4 w-4" />
+            {showForm ? "Close Form" : "Log New Run"}
+          </button>
+
+          <Link
+            to="/private/user"
+            className="flex items-center gap-2 rounded-full border-2 border-[#4FA8FF]/60 px-5 py-2.5 text-sm font-bold text-[#4FA8FF] transition-colors hover:bg-[#4FA8FF] hover:text-[#15171B]"
+          >
+            <UserCog className="h-4 w-4" />
+            Edit Profile
+          </Link>
         </div>
       </div>
 
-      {/* Button row */}
-      <div className="flex flex-wrap items-center gap-4 mt-4 mb-2">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 rounded-full border-2 border-[#3A3D42] px-5 py-2 text-sm font-bold text-[#A6ABB2] hover:text-[#F3F1ED] hover:border-[#F3F1ED] transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 rounded-full bg-[#FF5A36] px-5 py-2 text-sm font-bold text-white shadow-[0_0_30px_-4px_#FF5A36] hover:bg-[#ff7355] hover:shadow-[0_0_36px_-2px_#FF5A36] transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          {showForm ? "Close Form" : "Log New Run"}
-        </button>
-        <Link
-          to="/private/user"
-          className="flex items-center gap-2 rounded-full border-2 border-[#4FA8FF]/60 px-5 py-2 text-sm font-bold text-[#4FA8FF] hover:bg-[#4FA8FF] hover:text-[#0F1115] transition-colors"
-        >
-          <UserCog className="w-4 h-4" />
-          Edit Profile
-        </Link>
-      </div>
+      {/* Stats */}
+      <div className="grid gap-5 md:grid-cols-2">
+        {/* Distance */}
+        <div className="group relative overflow-hidden rounded-3xl border-2 border-[#FF5A36]/50 bg-[#1D2025] p-7 transition-all hover:border-[#FF5A36]">
+          <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[#FF5A36]/10 blur-[70px]" />
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-        <div className="md:col-span-3 rounded-3xl border-2 border-[#FF5A36]/50 bg-[#262A33]/80 backdrop-blur-sm p-7 flex items-center gap-5 shadow-[0_0_40px_-12px_#FF5A36] md:-translate-y-3">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#FF5A36]/15">
-            <Route className="w-6 h-6 text-[#FF5A36]" />
+          <div className="relative flex items-start justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF5A36]/10">
+              <Route className="h-6 w-6 text-[#FF5A36]" />
+            </div>
+
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              Distance
+            </span>
           </div>
-          <div>
-            <h4 className="text-xs uppercase tracking-widest text-[#A6ABB2] font-semibold">Total Distance</h4>
-            <p className="text-4xl font-['Archivo_Black'] text-[#FF5A36]">{totalDistanceFilter} km</p>
+
+          <div className="relative mt-8">
+            <p className="font-['Archivo_Black'] text-5xl text-[#FF5A36]">
+              {totalDistanceFilter}
+            </p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              kilometers
+            </p>
           </div>
         </div>
 
-        <div className="md:col-span-2 rounded-3xl border-2 border-[#FFC94F]/50 bg-[#262A33]/80 backdrop-blur-sm p-7 flex items-center gap-4 shadow-[0_0_40px_-12px_#FFC94F] md:translate-y-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FFC94F]/15">
-            <Flame className="w-5 h-5 text-[#FFC94F]" />
+        {/* Calories */}
+        <div className="group relative overflow-hidden rounded-3xl border-2 border-[#FFC94F]/50 bg-[#1D2025] p-7 transition-all hover:border-[#FFC94F]">
+          <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[#FFC94F]/10 blur-[70px]" />
+
+          <div className="relative flex items-start justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFC94F]/10">
+              <Flame className="h-6 w-6 text-[#FFC94F]" />
+            </div>
+
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              Calories
+            </span>
           </div>
-          <div>
-            <h4 className="text-xs uppercase tracking-widest text-[#A6ABB2] font-semibold">Calories</h4>
-            <p className="text-2xl font-['Archivo_Black'] text-[#FFC94F]">{totalCaloriesBurnedThisWeek} kcal</p>
+
+          <div className="relative mt-8">
+            <p className="font-['Archivo_Black'] text-5xl text-[#FFC94F]">
+              {totalCaloriesBurnedThisWeek}
+            </p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              kcal burned
+            </p>
           </div>
         </div>
       </div>
+
+      {/* Weight card */}
+      {user && (
+        <div className="mt-5 rounded-3xl border-2 border-[#33C97A]/50 bg-[#1D2025] p-7 transition-all hover:border-[#33C97A]">
+          <div className="flex items-start justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#33C97A]/10">
+              <span className="text-xl font-bold text-[#33C97A]">kg</span>
+            </div>
+
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              Weight Goal
+            </span>
+          </div>
+
+          <div className="mt-8">
+            <p className="font-['Archivo_Black'] text-5xl text-[#33C97A]">
+              {user.weight} → {user.goalWeight} kg
+            </p>
+
+            <p className="mt-2 text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              Current → Goal
+            </p>
+          </div>
+
+          {/* Keep your existing weight-loss 3-line calculation here */}
+          <div className="mt-6">
+            <div className="h-2 overflow-hidden rounded-full bg-[#3A3D42]">
+              <div
+                className="h-full rounded-full bg-[#33C97A]"
+                style={{ width: `${weightProgress}%` }}
+              />
+            </div>
+
+            <div className="mt-3 flex justify-between text-xs font-semibold">
+              <span className="text-[#A6ABB2]">
+                Weight progress
+              </span>
+
+              <span className="text-[#33C97A]">
+                {weightLost} / {weightToLose} kg
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chart */}
-      <div className="rounded-3xl border-2 border-[#3A3D42] bg-[#262A33]/80 backdrop-blur-sm p-8 md:p-10">
-        <div className="flex flex-col md:flex-row gap-12">
-          <div className="md:w-[62%]">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-[#A6ABB2]">Distance</h2>
-              <select
-                className="border-2 border-[#3A3D42] px-3 py-1.5 text-sm rounded-full bg-[#1B1E24] text-[#F3F1ED] focus:outline-none focus:border-[#FF5A36]"
-                value={viewMode}
-                onChange={handleViewModeChange}
-              >
-                <option value="weekly">Weekly</option>
-                <option value="daily">Daily</option>
-              </select>
-            </div>
-            <div className="h-72">
-              <Bar data={activityChartData} options={chartOptions} />
-            </div>
+      <div className="mt-8 rounded-3xl border-2 border-[#3A3D42] bg-[#1D2025] p-7 md:p-9">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              Training volume
+            </p>
+
+            <h2 className="mt-1 font-['Archivo_Black'] text-2xl">
+              Distance
+            </h2>
           </div>
 
-          <div className="md:w-[38%] flex flex-col justify-center gap-4 md:pl-6 md:border-l-2 md:border-[#3A3D42]">
-            <p className="text-sm text-[#A6ABB2] leading-relaxed">
-              {viewMode === "weekly"
-                ? "This week's totals, broken out by day."
-                : "Today's totals so far."}
-            </p>
-            {viewMode === "weekly" && (
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-1.5 rounded-full border-2 border-[#3A3D42] px-4 py-2 text-m font-bold hover:border-[#FF5A36] hover:text-[#FF5A36] transition-colors"
-                  onClick={() => setWeekFilter(weekFilter + 1)}
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                  Previous Week
-                </button>
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-1.5 rounded-full border-2 border-[#3A3D42] px-4 py-2 text-m font-bold hover:border-[#FF5A36] hover:text-[#FF5A36] transition-colors"
-                  onClick={() => setWeekFilter(weekFilter - 1)}
-                >
-                  Next Week
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
+          <select
+            className="rounded-full border-2 border-[#3A3D42] bg-[#22252B] px-4 py-2 text-sm font-semibold text-[#F3F1ED] outline-none transition-colors focus:border-[#FF5A36]"
+            value={viewMode}
+            onChange={handleViewModeChange}
+          >
+            <option value="weekly">Weekly</option>
+            <option value="daily">Daily</option>
+          </select>
         </div>
+
+        <div className="h-80">
+          <Bar data={activityChartData} options={chartOptions} />
+        </div>
+
+        {viewMode === "weekly" && (
+          <div className="mt-7 flex flex-wrap gap-3 border-t-2 border-[#3A3D42] pt-6">
+            <button
+              type="button"
+              onClick={() => setWeekFilter(weekFilter + 1)}
+              className="flex items-center gap-2 rounded-full border-2 border-[#3A3D42] px-5 py-2.5 text-sm font-bold text-[#A6ABB2] transition-colors hover:border-[#FF5A36] hover:text-[#FF5A36]"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous Week
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setWeekFilter(weekFilter - 1)}
+              className="flex items-center gap-2 rounded-full border-2 border-[#3A3D42] px-5 py-2.5 text-sm font-bold text-[#A6ABB2] transition-colors hover:border-[#FF5A36] hover:text-[#FF5A36]"
+            >
+              Next Week
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Form */}
       {showForm && (
-        <div className="rounded-3xl border-2 border-[#3A3D42] bg-[#262A33]/80 backdrop-blur-sm p-8 md:p-10 space-y-6">
-          <div className="text-base font-bold">{activityId ? "Edit Activity" : "Log Activity"}</div>
+        <div className="mt-8 rounded-3xl border-2 border-[#3A3D42] bg-[#1D2025] p-7 md:p-9">
+          <div className="mb-7">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+              Activity
+            </p>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="md:w-3/4">
-              <label className="block text-xs uppercase tracking-widest mb-1 text-[#A6ABB2] font-semibold">Title</label>
+            <h2 className="mt-1 font-['Archivo_Black'] text-2xl">
+              {activityId ? "Edit Activity" : "Log Activity"}
+            </h2>
+          </div>
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[#A6ABB2]">
+                Title
+              </label>
+
               <input
-                className="w-full p-2.5 text-sm rounded-lg bg-[#1B1E24] border-2 border-[#3A3D42] focus:outline-none focus:border-[#FF5A36]"
-                type="text" name="title" value={title} onChange={handleTitleChange}
+                className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] p-3.5 text-sm text-[#F3F1ED] outline-none transition-colors focus:border-[#FF5A36]"
+                type="text"
+                name="title"
+                value={title}
+                onChange={handleTitleChange}
               />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-5">
-              <div className="md:w-1/3">
-                <label className="block text-xs uppercase tracking-widest mb-1 text-[#A6ABB2] font-semibold">Date</label>
+            <div className="grid gap-5 md:grid-cols-3">
+              <div>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[#A6ABB2]">
+                  Date
+                </label>
+
                 <input
-                  className="w-full p-2.5 text-sm rounded-lg bg-[#1B1E24] border-2 border-[#3A3D42] focus:outline-none focus:border-[#FF5A36]"
-                  type="date" name="date" value={date} onChange={handleDateChange}
+                  className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] p-3.5 text-sm text-[#F3F1ED] outline-none focus:border-[#FF5A36]"
+                  type="date"
+                  name="date"
+                  value={date}
+                  onChange={handleDateChange}
                 />
               </div>
-              <div className="md:w-1/4">
-                <label className="block text-xs uppercase tracking-widest mb-1 text-[#A6ABB2] font-semibold">Distance</label>
+
+              <div>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[#A6ABB2]">
+                  Distance
+                </label>
+
                 <input
-                  className="w-full p-2.5 text-sm rounded-lg bg-[#1B1E24] border-2 border-[#3A3D42] focus:outline-none focus:border-[#FF5A36]"
-                  type="number" name="distance" value={distance} onChange={handleDistanceChange}
+                  className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] p-3.5 text-sm text-[#F3F1ED] outline-none focus:border-[#FF5A36]"
+                  type="number"
+                  name="distance"
+                  value={distance}
+                  onChange={handleDistanceChange}
                 />
               </div>
-              <div className="md:w-1/4 md:mt-4">
-                <label className="block text-xs uppercase tracking-widest mb-1 text-[#A6ABB2] font-semibold">Duration</label>
+
+              <div>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[#A6ABB2]">
+                  Duration
+                </label>
+
                 <input
-                  className="w-full p-2.5 text-sm rounded-lg bg-[#1B1E24] border-2 border-[#3A3D42] focus:outline-none focus:border-[#FF5A36]"
-                  type="number" name="duration" value={duration} onChange={handleDurationChange}
+                  className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] p-3.5 text-sm text-[#F3F1ED] outline-none focus:border-[#FF5A36]"
+                  type="number"
+                  name="duration"
+                  value={duration}
+                  onChange={handleDurationChange}
                 />
               </div>
             </div>
 
-            <div className="md:w-2/3">
-              <label className="block text-xs uppercase tracking-widest mb-1 text-[#A6ABB2] font-semibold">Burned Calories</label>
+            <div>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-[#A6ABB2]">
+                Burned Calories
+              </label>
+
               <input
-                className="w-full p-2.5 text-sm rounded-lg bg-[#1B1E24] border-2 border-[#3A3D42] focus:outline-none focus:border-[#FFC94F]"
-                type="number" name="caloriesBurned" value={caloriesBurned} onChange={handleCaloriesBurnedChange}
+                className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] p-3.5 text-sm text-[#F3F1ED] outline-none focus:border-[#FFC94F]"
+                type="number"
+                name="caloriesBurned"
+                value={caloriesBurned}
+                onChange={handleCaloriesBurnedChange}
               />
             </div>
 
-            {errorMessage && <p className="text-sm text-[#FFC94F]">{errorMessage}</p>}
+            {errorMessage && (
+              <p className="text-sm font-semibold text-[#FFC94F]">
+                {errorMessage}
+              </p>
+            )}
 
-            <div className="pt-1">
+            <div className="flex justify-end">
               {activityId ? (
                 <button
-                  className="bg-[#FF5A36] text-white px-6 py-2.5 text-sm font-bold rounded-full shadow-[0_0_20px_-4px_#FF5A36] hover:bg-[#ff7355] transition-colors"
-                  type="button" onClick={handleUpdateButton}
+                  className="rounded-full bg-[#FF5A36] px-7 py-3 text-sm font-bold text-white shadow-[0_0_25px_-5px_#FF5A36] transition-all hover:bg-[#ff7355]"
+                  type="button"
+                  onClick={handleUpdateButton}
                 >
                   Update
                 </button>
               ) : (
                 <button
-                  className="bg-[#FF5A36] text-white px-6 py-2.5 text-sm font-bold rounded-full shadow-[0_0_20px_-4px_#FF5A36] hover:bg-[#ff7355] transition-colors"
+                  className="rounded-full bg-[#FF5A36] px-7 py-3 text-sm font-bold text-white shadow-[0_0_25px_-5px_#FF5A36] transition-all hover:bg-[#ff7355]"
                   type="submit"
                 >
-                  Save
+                  Save Activity
                 </button>
               )}
             </div>
@@ -474,48 +625,103 @@ return (
         </div>
       )}
 
-      {/* Running History */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-['Archivo_Black'] tracking-wide">Running History</h2>
+      {/* History */}
+      <div className="mt-12">
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
+            Your records
+          </p>
+
+          <h2 className="mt-1 font-['Archivo_Black'] text-3xl">
+            Running History
+          </h2>
+        </div>
 
         {activities.length === 0 && (
-          <p className="text-sm text-[#6E7277]">No activities logged yet — add your first run above.</p>
+          <div className="rounded-3xl border-2 border-dashed border-[#3A3D42] bg-[#1D2025] p-12 text-center">
+            <Route className="mx-auto h-8 w-8 text-[#5A5F66]" />
+
+            <p className="mt-4 text-sm text-[#A6ABB2]">
+              No activities logged yet — add your first run above.
+            </p>
+          </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {activities.map((activity) => (
             <div
               key={activity._id}
-              className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-2xl border-2 border-[#3A3D42] bg-[#262A33]/80 backdrop-blur-sm p-5 hover:border-[#FF5A36]/50 transition-colors"
+              className="group rounded-3xl border-2 border-[#3A3D42] bg-[#1D2025] p-5 transition-all hover:border-[#5A5F66]"
             >
-              <div className="sm:w-28 shrink-0">
-                <p className="text-xs text-[#6E7277] uppercase tracking-widest">
-                  {activity.date ? activity.date.slice(0, 10).split("-").reverse().join(".") : ""}
-                </p>
-                <p className="font-medium">{activity.title}</p>
-              </div>
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+                <div className="flex items-center gap-4 lg:w-64">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FF5A36]/10">
+                    <Route className="h-5 w-5 text-[#FF5A36]" />
+                  </div>
 
-              <div className="flex flex-wrap gap-4 flex-1">
-                <span className="text-sm text-[#FF5A36] font-semibold">{activity.distance} km</span>
-                <span className="text-sm text-[#A6ABB2]">{activity.duration} mins</span>
-                <span className="text-sm text-[#FFC94F] font-semibold">{activity.caloriesBurned} kcal</span>
-              </div>
+                  <div>
+                    <p className="font-bold text-[#F3F1ED]">
+                      {activity.title}
+                    </p>
 
-              <div className="flex items-center gap-4 sm:ml-auto">
-                <button
-                  className="flex items-center gap-1 text-xs font-semibold text-[#4FA8FF] hover:text-[#7cc0ff] transition-colors"
-                  onClick={() => handleEditButton(activity)}
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                  Edit
-                </button>
-                <button
-                  className="flex items-center gap-1 text-xs font-semibold text-[#FF5A36] hover:text-[#ff8266] transition-colors"
-                  onClick={() => handleDeleteButton(activity._id)}
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Delete
-                </button>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#6E7277]">
+                      {activity.date
+                        ? activity.date
+                            .slice(0, 10)
+                            .split("-")
+                            .reverse()
+                            .join(".")
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid flex-1 grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.14em] text-[#6E7277]">
+                      Distance
+                    </p>
+                    <p className="mt-1 font-bold text-[#FF5A36]">
+                      {activity.distance} km
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.14em] text-[#6E7277]">
+                      Duration
+                    </p>
+                    <p className="mt-1 font-bold text-[#F3F1ED]">
+                      {activity.duration} mins
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.14em] text-[#6E7277]">
+                      Calories
+                    </p>
+                    <p className="mt-1 font-bold text-[#FFC94F]">
+                      {activity.caloriesBurned} kcal
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 lg:ml-auto">
+                  <button
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#4FA8FF] transition-colors hover:text-[#7cc0ff]"
+                    onClick={() => handleEditButton(activity)}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Edit
+                  </button>
+
+                  <button
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#FF5A36] transition-colors hover:text-[#ff8266]"
+                    onClick={() => handleDeleteButton(activity._id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -524,6 +730,7 @@ return (
     </div>
   </div>
 );
+
 }
 
 export default ActivityPage;

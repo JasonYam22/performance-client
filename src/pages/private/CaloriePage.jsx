@@ -4,11 +4,13 @@ import service from "../../services/index.services";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { ArrowLeft, Flame, Plus, Pencil, Trash2 } from "lucide-react";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function CaloriePage() {
   const navigate = useNavigate();
+
 
   const [getFoodNutrients, setGetFoodNutrients] = useState(false);
   const [user, setUser] = useState(null);
@@ -18,9 +20,10 @@ function CaloriePage() {
   const [caloriesConsumed, setCaloriesConsumed] = useState("");
   const [mealName, setMealName] = useState("");
   const [mealId, setMealId] = useState(null);
+  const [grams, setGrams] = useState(100)
   const [errorMessage, setErrorMessage] = useState(null);
   const [date, setDate] = useState("");
-  /* const [loading, isLoading] = useState(true) */
+  const [isLoading, setIsLoading] = useState(true)
 
   const [activityList, setActivityList] = useState([]);
   const [calorieList, setCalorieList] = useState([]);
@@ -143,16 +146,23 @@ function CaloriePage() {
 
       const matchedFood = response.data.foods?.[0];
 
-      if (matchedFood) {
-        const nutrientList = matchedFood.foodNutrients;
-        setCaloriesConsumed(
-          Math.round(findNutrientAmount(nutrientList, "Energy")),
-        );
-        setProtein(findNutrientAmount(nutrientList, "Protein"));
-        setCarbs(
-          findNutrientAmount(nutrientList, "Carbohydrate, by difference"),
-        );
-        setFat(findNutrientAmount(nutrientList, "Total lipid (fat)"));
+    if (matchedFood) {
+  const nutrientList = matchedFood.foodNutrients;
+  const scale = (Number(grams) || 100) / 100;
+  setCaloriesConsumed(
+    Math.round(findNutrientAmount(nutrientList, "Energy") * scale),
+  );
+  setProtein(
+    Math.round(findNutrientAmount(nutrientList, "Protein") * scale),
+  );
+  setCarbs(
+    Math.round(
+      findNutrientAmount(nutrientList, "Carbohydrate, by difference") * scale,
+    ),
+  );
+  setFat(
+    Math.round(findNutrientAmount(nutrientList, "Total lipid (fat)") * scale),
+  );
       } else {
         setErrorMessage("No nutrition data found for that meal name.");
       }
@@ -173,6 +183,7 @@ function CaloriePage() {
 
         setCalorieList(caloriesResponse.data);
         setActivityList(activitiesResponse.data);
+        setIsLoading(false);
       } catch (error) {
         console.log(error);
         if (error.response?.status === 400) {
@@ -245,6 +256,10 @@ function CaloriePage() {
       },
     ],
   };
+
+if (isLoading) {
+  return <LoadingSpinner />;
+}
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#15171B] text-[#F3F1ED]">
@@ -404,14 +419,27 @@ function CaloriePage() {
                   Meal Name
                 </label>
 
-                <input
-                  type="text"
-                  placeholder="e.g. Oatmeal & Eggs"
-                  value={mealName}
-                  onChange={handleMealNameChange}
-                  className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] px-4 py-3.5 text-sm text-[#F3F1ED] outline-none transition-colors placeholder:text-[#666B72] focus:border-[#FF5A36]"
-                />
-              </div>
+               <input
+  type="text"
+  placeholder="e.g. Oatmeal & Eggs"
+  value={mealName}
+  onChange={handleMealNameChange}
+  className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] px-4 py-3.5 text-sm text-[#F3F1ED] outline-none transition-colors placeholder:text-[#666B72] focus:border-[#FF5A36]"
+/>
+</div>
+
+<div>
+  <label className="mb-2 block text-xs font-bold uppercase tracking-[0.15em] text-[#A6ABB2]">
+    Portion (grams)
+  </label>
+  <input
+    type="number"
+    placeholder="100"
+    value={grams}
+    onChange={(e) => setGrams(e.target.value)}
+    className="w-full rounded-2xl border-2 border-[#3A3D42] bg-[#22252B] px-4 py-3.5 text-sm text-[#F3F1ED] outline-none transition-colors placeholder:text-[#666B72] focus:border-[#FF5A36]"
+  />
+</div>
 
               <button
                 type="button"

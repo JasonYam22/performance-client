@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import service from "../../services/index.services";
 import { Scale, Target, Flame, Ruler, Dumbbell, Save, User, Mail } from "lucide-react";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 function UserPage() {
+  
   const [user, setUser] = useState(null);
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
@@ -32,7 +34,7 @@ function UserPage() {
 
     try {
       const response = await service.put("users", body);
-      setUser(response.data);
+      setUser(response.data);;
     } catch (error) {
       console.log(error);
       setErrorMessage("Could not update profile");
@@ -44,6 +46,7 @@ function UserPage() {
       .get("/users")
       .then((response) => {
         setUser(response.data);
+              setIsLoading(false)
       })
       .catch((error) => {
         console.log(error);

@@ -2,6 +2,7 @@ import { useNavigate, Link } from "react-router-dom"
 import { Activity, Flame, Target, ShoppingBag } from "lucide-react";
 import { AuthContext } from "../../context/auth.context";
 import { useContext } from "react";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 function HomePage() {
 

@@ -25,6 +25,7 @@ import {
   Scale,
   Dumbbell,
 } from "lucide-react";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -158,6 +159,7 @@ const chartOptions = {
 function ActivityPage() {
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [viewMode, setViewMode] = useState("weekly");
@@ -284,6 +286,7 @@ function ActivityPage() {
       .get("/activities")
       .then((response) => {
         setActivities(response.data);
+        setIsLoading(false)
       })
       .catch((error) => {
         console.log(error);
@@ -332,6 +335,10 @@ function ActivityPage() {
   const workoutProgressPercent = workoutGoal
     ? Math.min((workoutsThisWeek / workoutGoal) * 100, 100)
     : 0;
+
+if (isLoading) {
+  return <LoadingSpinner />;
+}
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#15171B] text-[#F3F1ED]">

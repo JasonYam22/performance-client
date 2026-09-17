@@ -3,14 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import service from "../../services/index.services";
 
 function Signup() {
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handleUsernameChange = (e) => setUsername(e.target.value);
@@ -22,35 +20,37 @@ function Signup() {
     const body = {
       email,
       username,
-      password
-    }
+      password,
+    };
 
     try {
-      
       // ... contact backend to register the user
       // await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/auth/signup`, body)
-      await service.post("/auth/signup", body)
-      console.log("user created")
+      await service.post("/auth/signup", body);
+      console.log("user created");
 
-      navigate("/login")
-
+      navigate("/login");
     } catch (error) {
-      console.log(error)
-    if (error.response?.status === 400) {
-    setErrorMessage(error.response?.data?.errorMessage || "Something went wrong");
+      console.log(error);
+      if (error.response?.status === 400) {
+        setErrorMessage(
+          error.response?.data?.errorMessage || "Something went wrong",
+        );
       } else {
-      navigate("/error")
+        navigate("/error");
       }
     }
-
   };
 
-    return (
+  return (
     <div className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden">
       {/* bright, clearly visible sports background */}
       <div
         className="absolute inset-0 bg-cover bg-center blur-sm scale-110"
-     style={{ backgroundImage: "url('https://images.unsplash.com/photo-1744060204728-f68e434a3edf?fm=jpg&q=80&w=2400&auto=format&fit=crop')" }}
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1744060204728-f68e434a3edf?fm=jpg&q=80&w=2400&auto=format&fit=crop')",
+        }}
       />
       <div className="absolute inset-0 bg-[#15171B]/25" />
 
@@ -61,7 +61,10 @@ function Signup() {
           <div className="flex justify-end mb-8">
             <p className="text-sm text-[#A6ABB2] font-medium">
               Already a member?{" "}
-              <Link to="/login" className="text-[#F3F1ED] font-semibold underline underline-offset-4 decoration-[#FF5A36]">
+              <Link
+                to="/login"
+                className="text-[#F3F1ED] font-semibold underline underline-offset-4 decoration-[#FF5A36]"
+              >
                 Login
               </Link>
             </p>
@@ -118,10 +121,15 @@ function Signup() {
             </div>
 
             <p className="text-xs text-[#A6ABB2] font-medium mt-1">
-              By signing up, you agree to our terms of service and privacy policy.
+              By signing up, you agree to our terms of service and privacy
+              policy.
             </p>
 
-            {errorMessage && <p className="text-sm text-[#FF5A36] font-semibold">{errorMessage}</p>}
+            {errorMessage && (
+              <p className="text-sm text-[#FF5A36] font-semibold">
+                {errorMessage}
+              </p>
+            )}
 
             <button
               type="submit"
@@ -143,7 +151,6 @@ function Signup() {
       </div>
     </div>
   );
- 
 }
 
 export default Signup;

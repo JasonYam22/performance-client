@@ -1,18 +1,18 @@
 import { useContext, useState } from "react";
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../../context/auth.context";
 import service from "../../services/index.services";
 
 function Login() {
+  const { setIsLoggedIn, setLoggedUserId, setLoggedUserRole } =
+    useContext(AuthContext);
 
-  const { setIsLoggedIn, setLoggedUserId, setLoggedUserRole } = useContext(AuthContext)
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handlePasswordChange = (e) => setPassword(e.target.value);
@@ -22,44 +22,46 @@ function Login() {
 
     const body = {
       email,
-      password
-    }
+      password,
+    };
 
     try {
-      
       // ... contact backend validate user credentials
       // const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}api/auth/login`, body)
-      const response = await service.post("/auth/login", body)
-      console.log(response)
+      const response = await service.post("/auth/login", body);
+      console.log(response);
 
       // store the token in localStorage
-      localStorage.setItem("authToken", response.data.authToken)
+      localStorage.setItem("authToken", response.data.authToken);
 
       // update the auth states correctly
-      setIsLoggedIn(true)
-      setLoggedUserId(response.data.payload._id)
+      setIsLoggedIn(true);
+      setLoggedUserId(response.data.payload._id);
 
-      setLoggedUserRole(response.data.payload.role) // only for roles
+      setLoggedUserRole(response.data.payload.role); // only for roles
 
-      navigate("/")
-
+      navigate("/");
     } catch (error) {
-      console.log(error)
+      console.log(error);
       if (error.response?.status === 400) {
-    setErrorMessage(error.response?.data?.errorMessage || "Something went wrong");
+        setErrorMessage(
+          error.response?.data?.errorMessage || "Something went wrong",
+        );
       } else {
-  navigate("/error")
+        navigate("/error");
       }
     }
-
   };
 
   return (
-       <div className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden">
+    <div className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden">
       {/* bright, clearly visible sports background */}
       <div
         className="absolute inset-0 bg-cover bg-center blur-sm scale-110"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1744060204728-f68e434a3edf?fm=jpg&q=80&w=2400&auto=format&fit=crop')" }}
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1744060204728-f68e434a3edf?fm=jpg&q=80&w=2400&auto=format&fit=crop')",
+        }}
       />
       <div className="absolute inset-0 bg-[#15171B]/25" />
 
@@ -68,7 +70,10 @@ function Login() {
         <div className="flex justify-end mb-8">
           <p className="text-sm text-[#A6ABB2] font-medium">
             New here?{" "}
-            <Link to="/signup" className="text-[#F3F1ED] font-semibold underline underline-offset-4 decoration-[#FF5A36]">
+            <Link
+              to="/signup"
+              className="text-[#F3F1ED] font-semibold underline underline-offset-4 decoration-[#FF5A36]"
+            >
               Sign up
             </Link>
           </p>
@@ -110,7 +115,11 @@ function Login() {
             />
           </div>
 
-          {errorMessage && <p className="text-sm text-[#FF5A36] font-semibold">{errorMessage}</p>}
+          {errorMessage && (
+            <p className="text-sm text-[#FF5A36] font-semibold">
+              {errorMessage}
+            </p>
+          )}
 
           <button
             type="submit"
@@ -118,7 +127,6 @@ function Login() {
           >
             Login
           </button>
-
         </form>
       </div>
     </div>

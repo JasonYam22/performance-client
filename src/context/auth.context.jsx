@@ -13,6 +13,7 @@ function AuthWrapper( { children } ) {
   const [loggedUserId, setLoggedUserId] = useState(null)
   const [isVerifyingUser, setIsVerifyingUser] = useState(true)
   const [loggedUserRole, setLoggedUserRole] = useState(null)
+ const [ isLoading, setIsLoading ] = useState(true)
 
   const verifyUser = async () => {
 
@@ -25,7 +26,7 @@ function AuthWrapper( { children } ) {
       setLoggedUserId(response.data.payload._id)
 
       setLoggedUserRole(response.data.payload.role) // only for roles
-
+  setIsLoading(false)
       setIsVerifyingUser(false)
 
     } catch (error) {
@@ -34,6 +35,7 @@ function AuthWrapper( { children } ) {
       setLoggedUserId(null)
       setIsVerifyingUser(false)
       setLoggedUserRole(null)
+      setIsLoading(false)
     }
   }
 
@@ -65,6 +67,10 @@ function AuthWrapper( { children } ) {
     </div>
   );
 }
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (

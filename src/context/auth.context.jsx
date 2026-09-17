@@ -1,6 +1,7 @@
 /* import axios from "axios"; */
 import { createContext, useEffect, useState } from "react";
 import service from "../services/index.services";
+import { Loader2 } from "lucide-react";
 
 // Context Component => shares the context with the app
 const AuthContext = createContext()
@@ -11,22 +12,12 @@ function AuthWrapper( { children } ) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loggedUserId, setLoggedUserId] = useState(null)
   const [isVerifyingUser, setIsVerifyingUser] = useState(true)
-
-  // only for roles
   const [loggedUserRole, setLoggedUserRole] = useState(null)
 
   const verifyUser = async () => {
-    // ... this function will send the token to the backend so the backend can verify it
-
-    // const authToken = localStorage.getItem("authToken")
 
     try {
       
-      // const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/auth/verify`, {
-      //   headers: {
-      //     authorization: `Bearer ${authToken}`
-      //   }
-      // })
       const response = await service.get("/auth/verify")
 
       // the token is valid
@@ -61,8 +52,19 @@ function AuthWrapper( { children } ) {
   }
 
   if (isVerifyingUser) {
-    //! invest some time into a cool animation for the user to see on their fist visit to the app.
-    return <h3>Verifying user credentials...</h3>
+   if (isVerifyingUser) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#15171B] text-[#F3F1ED]">
+      <Loader2 className="h-10 w-10 animate-spin text-[#FF5A36]" />
+      <p
+        className="text-sm font-bold uppercase tracking-[0.18em] text-[#A6ABB2]"
+        style={{ fontFamily: "'Archivo Black', sans-serif" }}
+      >
+        Verifying credentials...
+      </p>
+    </div>
+  );
+}
   }
 
   return (

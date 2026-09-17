@@ -27,13 +27,13 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
            <Route path="/error" element={<ErrorPage />} />
+           <Route path="*" element={<ErrorPage />} />
                <Route path="/private/user" element={<OnlyPrivate><UserPage/></OnlyPrivate>} />
              <Route path="/" element={<HomePage /> } />
            <Route path="/private/activities" element={<OnlyPrivate><ActivityPage/></OnlyPrivate>} />
               <Route path="/private/calories" element={<OnlyPrivate><CaloriePage/></OnlyPrivate>} />
                  <Route path="/private/paths" element={<OnlyPrivate><PathPage/></OnlyPrivate>} />
 
-        {/* error FE routes here... */}
 
       </Routes>
     </div>

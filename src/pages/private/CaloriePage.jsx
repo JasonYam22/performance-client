@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import service, { foodApi } from "../../services/index.services";
+import service from "../../services/index.services";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { ArrowLeft, Flame, Plus, Pencil, Trash2 } from "lucide-react";
@@ -135,11 +135,9 @@ function CaloriePage() {
     setGetFoodNutrients(true);
 
     try {
-      const response = await foodApi.get("", {
+      const response = await service.get("/food", {
         params: {
-          api_key: import.meta.env.VITE_CALORIE_API_KEY,
           query: mealName,
-          pageSize: 1,
         },
       });
 

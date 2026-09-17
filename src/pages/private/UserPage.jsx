@@ -30,6 +30,11 @@ const [errorMessage, setErrorMessage] = useState("");
       weeklyWorkoutGoal,
     };
 
+  if (weight < 0 || height < 0 || goalWeight < 0 || dailyCalorieGoal < 0 || weeklyWorkoutGoal < 0) {
+      alert ("Please enter valid non negative numbers")
+      return
+    }
+
     try {
       const response = await service.put("users", body);
       setUser(response.data);
@@ -53,11 +58,11 @@ const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (user) {
-      setWeight(user.weight);
-      setHeight(user.height);
-      setGoalWeight(user.goalWeight);
-      setDailyCalorieGoal(user.dailyCalorieGoal);
-      setWeeklyWorkoutGoal(user.weeklyWorkoutGoal);
+      setWeight(user.weight ?? "");
+      setHeight(user.height ?? "");
+      setGoalWeight(user.goalWeight ?? "");
+      setDailyCalorieGoal(user.dailyCalorieGoal ?? "");
+      setWeeklyWorkoutGoal(user.weeklyWorkoutGoal ?? "");
     }
   }, [user]);
 
@@ -82,7 +87,7 @@ return (
           </div>
           <div>
             <h3 className="text-xs uppercase tracking-widest text-[#A6ABB2] font-semibold">Daily Calorie Goal</h3>
-            <p className="text-2xl font-['Archivo_Black'] text-[#FFC94F]">{user?.dailyCalorieGoal || "Not set"} (kcal)</p>
+            <p className="text-2xl font-['Archivo_Black'] text-[#FFC94F]">{user?.dailyCalorieGoal != null ? user.weeklyCalorieGoal : "Not set"} (kcal)</p>
           </div>
         </div>
 
@@ -92,7 +97,7 @@ return (
           </div>
           <div>
             <h3 className="text-xs uppercase tracking-widest text-[#A6ABB2] font-semibold">Weekly Workout Goal</h3>
-            <p className="text-2xl font-['Archivo_Black'] text-[#4FA8FF]">{user?.weeklyWorkoutGoal || "Not set"} (x / week)</p>
+            <p className="text-2xl font-['Archivo_Black'] text-[#4FA8FF]">{user?.weeklyWorkoutGoal != null ? user.weeklyCalorieGoal : "Not set"} (x / week)</p>
           </div>
         </div>
       </div>

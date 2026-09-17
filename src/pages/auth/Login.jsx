@@ -46,7 +46,7 @@ function Login() {
     } catch (error) {
       console.log(error)
       if (error.response?.status === 400) {
-    setErrorMessage(error.response?.data?.message || "Something went wrong");
+    setErrorMessage(error.response?.data?.errorMessage || "Something went wrong");
       } else {
   navigate("/error")
       }
@@ -91,6 +91,7 @@ function Login() {
               name="email"
               value={email}
               onChange={handleEmailChange}
+              required
               className="w-full bg-transparent border-b-2 border-[#454951] focus:border-[#FF5A36] outline-none py-2 text-lg font-medium transition-colors"
             />
           </div>
@@ -104,6 +105,7 @@ function Login() {
               name="password"
               value={password}
               onChange={handlePasswordChange}
+              required
               className="w-full bg-transparent border-b-2 border-[#454951] focus:border-[#FF5A36] outline-none py-2 text-lg font-medium transition-colors"
             />
           </div>

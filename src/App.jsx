@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router";
+import { Routes, Route, useNavigate } from "react-router";
 import "./index.css"
 // pages
 import HomePage from "./pages/private/HomePage"
@@ -11,7 +11,6 @@ import ErrorPage from "./pages/ErrorPage"
 
 // components
 import Navbar from "./components/Navbar"
-/* import OnlyAdmin from "./components/OnlyAdmin" */
 import OnlyPrivate from "./components/OnlyPrivate"
 import UserPage from "./pages/private/UserPage";
 
@@ -29,7 +28,7 @@ function App() {
         <Route path="/login" element={<Login />} />
            <Route path="/error" element={<ErrorPage />} />
                <Route path="/private/user" element={<OnlyPrivate><UserPage/></OnlyPrivate>} />
-             <Route path="/" element={<OnlyPrivate><HomePage /></OnlyPrivate>} />
+             <Route path="/" element={<HomePage /> } />
            <Route path="/private/activities" element={<OnlyPrivate><ActivityPage/></OnlyPrivate>} />
               <Route path="/private/calories" element={<OnlyPrivate><CaloriePage/></OnlyPrivate>} />
                  <Route path="/private/paths" element={<OnlyPrivate><PathPage/></OnlyPrivate>} />

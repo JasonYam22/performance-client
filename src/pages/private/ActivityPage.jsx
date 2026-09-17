@@ -306,6 +306,11 @@ const weightDifference =
     ? Math.abs(currentWeight - goalWeight)
     : 0;
 
+    const startingWeight = Number(user?.weight) || 0;
+const weightToLose = weightDifference;
+const weightLost = 0
+const weightProgress =
+  weightToLose > 0 ? Math.min((weightLost / weightToLose) * 100, 100) : 0
 
 return (
   <div className="relative min-h-screen overflow-hidden bg-[#15171B] text-[#F3F1ED]">
@@ -431,7 +436,7 @@ return (
 
           <div className="mt-8">
             <p className="font-['Archivo_Black'] text-5xl text-[#33C97A]">
-              {user.weight} → {user.goalWeight} kg
+             {user.weight != null ? user.weight : "—"} → {user.goalWeight != null ? user.goalWeight : "—"} kg
             </p>
 
             <p className="mt-2 text-xs font-bold uppercase tracking-[0.18em] text-[#A6ABB2]">
